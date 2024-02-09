@@ -35,9 +35,9 @@ public class UserDaoJDBCImpl implements UserDao {
             String sqlQuery = """
                     CREATE TABLE Users (
                         id INT AUTO_INCREMENT PRIMARY KEY,
-                        name VARCHAR(50),
-                        lastName VARCHAR(50),
-                        age TINYINT
+                        name VARCHAR(50) NOT NULL,
+                        lastName VARCHAR(50) NOT NULL,
+                        age TINYINT NOT NULL
                     );""";
 
             statement.execute(sqlQuery);
@@ -71,7 +71,17 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
+        String sqlQuery = """
+                DELETE FROM Users WHERE id = ?;
+                """;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
 
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public List<User> getAllUsers() {
@@ -79,6 +89,14 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
+        String sqlQuery = """
+                DELETE FROM Users;
+                """;
+        try {
+            statement.execute(sqlQuery);
 
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
