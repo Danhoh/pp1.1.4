@@ -3,8 +3,10 @@ package jm.task.core.jdbc.model;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Entity;
 
-@Table
+@Entity
+@Table(name = "Users")
 public class User {
     @Id
     private Long id;
