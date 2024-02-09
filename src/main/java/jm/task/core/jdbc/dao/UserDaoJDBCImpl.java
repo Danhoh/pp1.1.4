@@ -5,6 +5,7 @@ import jm.task.core.jdbc.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import jm.task.core.jdbc.util.Util;
@@ -74,6 +75,7 @@ public class UserDaoJDBCImpl implements UserDao {
         String sqlQuery = """
                 DELETE FROM Users WHERE id = ?;
                 """;
+
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setLong(1, id);
@@ -85,13 +87,35 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public List<User> getAllUsers() {
-        return null;
+        String sqlQuery = """
+                    SELECT * FROM Users;     \s
+                    """;
+        List<User> list = new ArrayList<>();
+
+        try {
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+
+            while (resultSet.next()) {
+                list.add(new User(
+                            resultSet.getString(2),
+                            resultSet.getString(3),
+                            resultSet.getByte(4)
+                        )
+                );
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return list;
     }
 
     public void cleanUsersTable() {
         String sqlQuery = """
                 DELETE FROM Users;
                 """;
+
         try {
             statement.execute(sqlQuery);
 

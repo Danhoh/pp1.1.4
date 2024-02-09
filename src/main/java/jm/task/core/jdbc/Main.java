@@ -14,6 +14,7 @@ public class Main {
 //        dao.saveUser("Ilya", "Ageev", (byte) 23);
 //        dao.saveUser("Georgiy", "Bogoslavcev", (byte) 23);
 //        dao.removeUserById(2);
-        dao.cleanUsersTable();
+//        dao.cleanUsersTable();
+        System.out.println(dao.getAllUsers());
     }
 }
