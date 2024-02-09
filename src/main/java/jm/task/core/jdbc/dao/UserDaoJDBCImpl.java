@@ -7,17 +7,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import jm.task.core.jdbc.util.Util;
-
-import javax.management.Query;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 public class UserDaoJDBCImpl implements UserDao {
     private Connection connection;
     private Statement statement;
-    private Util util;
+    private final Util util;
     public UserDaoJDBCImpl() {
         util = new Util();
 
@@ -66,6 +63,7 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.execute();
+            System.out.println("User с именем - " + name + " добавлен в базу данных");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
