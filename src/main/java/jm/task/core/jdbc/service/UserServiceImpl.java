@@ -4,10 +4,10 @@ import jm.task.core.jdbc.model.User;
 
 import java.util.List;
 
-import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
+import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 
 public class UserServiceImpl implements UserService {
-    UserDaoJDBCImpl userDao = new UserDaoJDBCImpl();
+    UserDaoHibernateImpl userDao = new UserDaoHibernateImpl();
 
     public UserServiceImpl() {
 
