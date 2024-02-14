@@ -1,27 +1,23 @@
 package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
-
 import jm.task.core.jdbc.util.Util;
 
 import java.util.List;
+import java.lang.Exception;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private Session session = null;
-
     public UserDaoHibernateImpl() {
-        Util util = new Util();
-        session = util.getSession();
     }
 
     @Override
     public void createUsersTable() {
-        Transaction transaction = session.beginTransaction();
-
-        String sqlQuery = """
+        try (Session session = Util.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String sqlQuery = """
                     CREATE TABLE IF NOT EXISTS Users (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         name VARCHAR(50) NOT NULL,
@@ -29,55 +25,93 @@ public class UserDaoHibernateImpl implements UserDao {
                         age TINYINT NOT NULL
                     );""";
 
-        session.createSQLQuery(sqlQuery).executeUpdate();
-
-        transaction.commit();
+            session.createSQLQuery(sqlQuery).executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void dropUsersTable() {
-        Transaction transaction = session.beginTransaction();
+        try (Session session = Util.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String sqlQuery = "DROP TABLE IF EXISTS Users;";
 
-        String sqlQuery = "DROP TABLE IF EXISTS Users;";
-
-        session.createSQLQuery(sqlQuery).executeUpdate();
-
-        transaction.commit();
+            session.createSQLQuery(sqlQuery).executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        User user = new User(name, lastName, age);
+        try (Session session = Util.openSession()) {
+            Transaction transaction = null;
+            try {
+                transaction = session.beginTransaction();
+                User user = new User(name, lastName, age);
 
-        Transaction transaction = session.beginTransaction();
+                session.save(user);
+                transaction.commit();
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
 
-        session.save(user);
-
-        transaction.commit();
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+            }
+        }
     }
 
     @Override
     public void removeUserById(long id) {
-        Transaction transaction = session.beginTransaction();
+        try (Session session = Util.openSession()) {
+            Transaction transaction = null;
+            try {
+                transaction = session.beginTransaction();
+                User user = session.get(User.class, id);
 
-        User user = session.get(User.class, id);
-        session.remove(user);
+                if (user != null) { // можно же опустить проверку, т.к. и без нее все равно произойдет ролбек?
+                    session.remove(user);
+                    transaction.commit();
+                } else {
+                    transaction.rollback();
+                }
 
-        transaction.commit();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+            }
+
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        return session.createQuery("FROM User", User.class).list();
+        try (Session session = Util.openSession()) {
+            return session.createQuery("FROM User", User.class).list();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
     public void cleanUsersTable() {
-        Transaction transaction = session.beginTransaction();
+        try (Session session = Util.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String hql = "DELETE FROM User";
 
-        String hql = "DELETE FROM User";
-        int rowsAffected = session.createQuery(hql).executeUpdate();
-
-        transaction.commit();
+            session.createQuery(hql).executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

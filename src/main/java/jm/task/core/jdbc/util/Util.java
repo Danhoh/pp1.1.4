@@ -2,7 +2,6 @@ package jm.task.core.jdbc.util;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -13,21 +12,21 @@ import jm.task.core.jdbc.model.User;
 import java.util.Properties;
 
 public class Util {
-    // реализуйте настройку соеденения с БД
-    private final String url = "jdbc:mysql://localhost:3306/pp";
-    private final String user = "root";
-    private final String password = "1234567890";
+    private static final String url = "jdbc:mysql://localhost:3306/pp";
+    private static final String user = "root";
+    private static final String password = "1234567890";
+    private static final SessionFactory sessionFactory;
 
-    private Properties properties = new Properties();
+    static {
+        sessionFactory = initSessionFactory();
+    }
 
-    private StandardServiceRegistry registry = null;
+    private Util() {
+    }
 
-    private MetadataSources sources = null;
+    private static SessionFactory initSessionFactory() {
+        Properties properties = new Properties();
 
-    private SessionFactory sessionFactory = null;
-
-    private Session session = null;
-    public Util() {
         properties.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
         properties.put(Environment.URL, url);
         properties.put(Environment.USER, user);
@@ -35,20 +34,18 @@ public class Util {
         properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
         properties.put(Environment.SHOW_SQL, "true");
 
-        registry = new StandardServiceRegistryBuilder()
-                .applySettings(properties)
-                .build();
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(properties).build();
+        MetadataSources sources = new MetadataSources(registry);
+        sources.addAnnotatedClass(User.class);
 
-        sources = new MetadataSources(registry);
-        sources.addAnnotatedClass(User.class); // Добавляем класс сущности
-
-        sessionFactory = sources.buildMetadata().buildSessionFactory();
-        session = sessionFactory.openSession();
+        return sources.buildMetadata().buildSessionFactory();
     }
 
+    public static Session openSession() {
+        return sessionFactory.openSession();
+    }
 
-
-    public Session getSession() {
-        return session;
+    public static void closeSessionFactory() {
+        sessionFactory.close();
     }
 }
