@@ -5,7 +5,6 @@ import jm.task.core.jdbc.service.UserServiceImpl;
 import jm.task.core.jdbc.util.Util;
 
 public class Main {
-//    а ну и по конвенции константы именуются в верхнем регистре и с использованием _ между словами
     public static void main(String[] args) {
         UserService userService = new UserServiceImpl();
         userService.createUsersTable();
